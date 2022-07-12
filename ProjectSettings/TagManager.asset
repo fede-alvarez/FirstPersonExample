@@ -7,6 +7,7 @@ TagManager:
   - Floor
   - Enemies/FirstEnemy
   - Target
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -43,4 +44,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: SpatialUI
+    uniqueID: 4241865403
     locked: 0

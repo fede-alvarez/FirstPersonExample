@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
-public class Target : MonoBehaviour
+
+public class Target : MonoBehaviour, IDamagable
 {
     [SerializeField] private int _loopCounts = 5;
     [SerializeField] private float _loopDuration = 0.1f;
@@ -14,7 +15,7 @@ public class Target : MonoBehaviour
     private void Start()
     {
         _initialScale = transform.localScale;
-        _initialRotation = transform.rotation;
+        _initialRotation = transform.localRotation;
     }
 
     public void Shooted()
@@ -28,9 +29,12 @@ public class Target : MonoBehaviour
         transform.DOLocalRotate(new Vector3(0,1,0), _loopDuration).SetLoops(_loopCounts, LoopType.Incremental).SetEase(Ease.InSine).OnComplete(() => 
         {
             _shooted = false;
-            //transform.DOLocalRotate(new Vector3(0,90,0), 0.1f);
-            transform.rotation = _initialRotation;
-            print("Rotation reseted!");
+            transform.localRotation = _initialRotation;
         });
+    }
+
+    public void Damage(Vector3 damageDirection)
+    {
+        Shooted();
     }
 }
