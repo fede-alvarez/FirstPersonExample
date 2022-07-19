@@ -4,6 +4,8 @@ using DG.Tweening;
 public class PlayerShoot : MonoBehaviour
 {
     [SerializeField] private Camera _fpsCamera;
+    [SerializeField] private ParticleSystem _impactParticles;
+    [SerializeField] private ParticleSystem _bulletHoleParticle;
     [SerializeField] private ParticleSystem _muzzleFlashParticles;
     [SerializeField] private LayerMask _enemiesMask;
 
@@ -75,6 +77,16 @@ public class PlayerShoot : MonoBehaviour
             target.Damage(shootDirection);
         }
     }
+
+    private void SpawnParticles(RaycastHit hit)
+    {
+        Quaternion rotation = Quaternion.LookRotation(hit.normal);
+        Instantiate(_impactParticles, hit.point, rotation);
+        
+        ParticleSystem go = Instantiate(_bulletHoleParticle, hit.point, rotation); 
+        if (go != null) go.transform.parent = hit.transform;
+    }
+
     private Transform GetFromRay()
     {
         RaycastHit hit;
@@ -84,6 +96,7 @@ public class PlayerShoot : MonoBehaviour
         {
             if (hit.transform != null)
             {
+                SpawnParticles(hit);
                 return hit.transform;
             }
         }

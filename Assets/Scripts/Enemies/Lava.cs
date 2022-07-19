@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 public class Lava : MonoBehaviour
 {
@@ -19,6 +20,12 @@ public class Lava : MonoBehaviour
         {
             _isLavaRising = false;
         });
+    }
+
+    private void OnTriggerEnter(Collider other) 
+    {
+        if (!other.CompareTag("Player")) return;
+        SceneManager.LoadScene(0);
     }
 
     private void OnDestroy() 
