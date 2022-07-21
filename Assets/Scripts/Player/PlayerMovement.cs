@@ -92,6 +92,7 @@ public class PlayerMovement : MonoBehaviour
             _isJumping = true;
 
             _rb.AddForce(transform.up * 100 * _jumpForce, ForceMode.Impulse);
+            return;
         }
 
         if (_isJumpReleased)
@@ -100,6 +101,11 @@ public class PlayerMovement : MonoBehaviour
             _rb.AddForce(-transform.up * 100 * (_jumpForce * 0.3f), ForceMode.Impulse);
         }
 
+        HandleGravity();
+    }
+
+    private void HandleGravity()
+    {
         // Set gravity
         _rb.AddForce(-transform.up * 100 * (_gravity * _currentScale), ForceMode.Force);
     }

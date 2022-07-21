@@ -73,8 +73,8 @@ public class PlayerLook : MonoBehaviour
     {
         // Weapon Sway
         Vector2 newRotations = _frameVelocity;
-        newRotations.x = Mathf.Clamp(newRotations.x, -50, 50);
-        newRotations.y = Mathf.Clamp(newRotations.y, -50, 50);
+        newRotations.x = Mathf.Clamp(newRotations.x, -80, 80);
+        newRotations.y = Mathf.Clamp(newRotations.y, -80, 80);
 
         Quaternion xRotation = Quaternion.AngleAxis(newRotations.y, Vector3.right);
         Quaternion yRotation = Quaternion.AngleAxis(-newRotations.x, Vector3.up);

@@ -28,7 +28,7 @@ public class PlayerShoot : MonoBehaviour
     private void Update() 
     {
         if (_noAmmo) return;
-        if (!Input.GetMouseButtonDown(0)) return;
+        if (!Input.GetMouseButtonDown(0) && !Input.GetButtonDown("Fire1")) return;
         
         BulletsCount();
         CheckCollision();
