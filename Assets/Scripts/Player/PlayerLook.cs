@@ -37,7 +37,9 @@ public class PlayerLook : MonoBehaviour
     {
         LookAtMouse();
 
-        if (Input.GetMouseButton(1))
+        bool aimPressed = Input.GetMouseButton(1);
+
+        if (aimPressed)
             Aim();
         else
             NoAim();
@@ -90,6 +92,8 @@ public class PlayerLook : MonoBehaviour
 
         _weaponHolder.localPosition = Vector3.Lerp(_weaponHolder.localPosition, newPos, Time.deltaTime * _aimSpeed);
         _fpCameraComponent.fieldOfView = Mathf.Lerp(_fpCameraComponent.fieldOfView, 45, Time.deltaTime * _aimSpeed);
+
+        EventManager.OnPlayerAim();
     }
 
     private void NoAim()
@@ -99,6 +103,8 @@ public class PlayerLook : MonoBehaviour
 
         _weaponHolder.localPosition = Vector3.Lerp(_weaponHolder.localPosition, newPos, Time.deltaTime * _aimSpeed);
         _fpCameraComponent.fieldOfView = Mathf.Lerp(_fpCameraComponent.fieldOfView, 60, Time.deltaTime * _aimSpeed);
+
+        EventManager.OnPlayerNoAim();
     }
 
     public void Recoil()
