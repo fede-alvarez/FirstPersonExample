@@ -18,6 +18,7 @@ public class UIManager : MonoBehaviour
     private void Start() 
     {
       _currentColor = _crosshairParts[0].color;
+      
       EventManager.HitDetected += ShowHit;
       EventManager.PlayerAim += CrosshairFocus;
       EventManager.PlayerNoAim += CrosshairNormal;
