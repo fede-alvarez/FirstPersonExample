@@ -5,6 +5,7 @@ public class PlayerLook : MonoBehaviour
 {
     [Header("Main refs")]
     [SerializeField] private Transform _fpCamera;
+    [SerializeField] private Transform _cameraParent;
     [SerializeField] private Transform _weaponHolder;
     
     [Header("Settings")]
@@ -16,20 +17,27 @@ public class PlayerLook : MonoBehaviour
     [Header("Gun")]
     [SerializeField] private float _swayMultiplier = 1;
     
-    private Vector2 _rotations = new Vector2(0,90);
-    
-    private Vector2 _frameVelocity;
+    private PlayerMovement _playerMovement;
     private Camera _fpCameraComponent;
+
+    private Vector3 _rotations = new Vector3(0,90,0);
+    private Vector2 _frameVelocity;
+
     private bool _isAiming = false;
     private bool _isRecoiling = false;
+    
+    private float _defaultYPos;
+    private float _timer;
 
     private void Awake() 
     {
+        _playerMovement = GetComponent<PlayerMovement>();
         _fpCameraComponent = _fpCamera.GetComponent<Camera>();
     }
 
     private void Start() 
     {
+        _defaultYPos = _weaponHolder.transform.localPosition.y;
         Cursor.lockState = CursorLockMode.Locked;
     }
     
@@ -43,11 +51,19 @@ public class PlayerLook : MonoBehaviour
             Aim();
         else
             NoAim();
+
     }
 
     private void LateUpdate() 
     {
-        SwayWeapon();
+        if (!_playerMovement.IsMoving)
+        {
+            SwayWeapon();
+        }else{
+            RotateWeapon();
+        }
+
+        TiltCamera();
     }
 
     private void LookAtMouse()
@@ -66,9 +82,20 @@ public class PlayerLook : MonoBehaviour
 
         Quaternion headRotation = Quaternion.AngleAxis(_rotations.x, Vector3.right);
         Quaternion bodyRotation = Quaternion.AngleAxis(_rotations.y, Vector3.up);
+        Quaternion headRotationTilt = Quaternion.AngleAxis(_rotations.z, Vector3.forward);
 
-        _fpCamera.localRotation = headRotation;
+        _fpCamera.localRotation = headRotation * headRotationTilt;
         transform.localRotation = bodyRotation;
+
+    }
+
+    private void TiltCamera()
+    {
+        int tiltDirection = (int) _playerMovement.GetXInput;
+        float tiltTime = 15;
+        float tiltAngle = 5;
+        
+        _rotations.z = Mathf.Lerp(_rotations.z, tiltAngle * tiltDirection, Time.deltaTime * tiltTime);
     }
 
     private void SwayWeapon()
@@ -83,6 +110,14 @@ public class PlayerLook : MonoBehaviour
 
         Quaternion targetRotation = xRotation * yRotation;
         _weaponHolder.localRotation = Quaternion.Slerp(_weaponHolder.localRotation, targetRotation, _swayMultiplier * Time.deltaTime);
+    }
+
+    private void RotateWeapon()
+    {
+        _timer += Time.deltaTime * 10f;
+        Vector3 pos = _weaponHolder.transform.localPosition;
+        Vector3 finalPos = new Vector3(pos.x, _defaultYPos + Mathf.Sin(_timer) * 0.1f, pos.z);
+        _weaponHolder.transform.localPosition = Vector3.Lerp(pos, finalPos, Time.deltaTime * 10);
     }
 
     private void Aim()

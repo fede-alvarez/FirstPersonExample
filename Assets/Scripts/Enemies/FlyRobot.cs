@@ -1,8 +1,20 @@
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.AI;
 
 public class FlyRobot : MonoBehaviour, IDamagable
 {
+    public enum States {
+        Wander,
+        Search,
+        Wait,
+        Attack
+    }
+
+    [SerializeField] protected States _currentState = States.Wander;
+
+    [SerializeField] protected LayerMask _floorMask;
+
     [SerializeField] protected float _wanderRadius = 8;
     [SerializeField] protected float _wanderTimer = 5;
 
@@ -10,9 +22,11 @@ public class FlyRobot : MonoBehaviour, IDamagable
     private bool _isAttacking = false;
     private Transform _player;
     private Rigidbody _rb;
+    private NavMeshAgent _agent;
 
     private void Awake() 
     {
+        _agent = GetComponent<NavMeshAgent>();
         _rb = GetComponent<Rigidbody>();        
     }
 
@@ -23,22 +37,19 @@ public class FlyRobot : MonoBehaviour, IDamagable
 
     private void Update() 
     {
-        if (!_isAttacking)
-            WanderAround();
-        else
-            Attack();
-    }
-
-    private void Attack()
-    {
-        _timer += Time.deltaTime;
-        if (_timer >= 3) 
+        switch (_currentState)
         {
-            Vector3 playerDir = (_player.position - transform.position).normalized;
-            transform.forward = playerDir;
-            _rb.DOMove(playerDir * 5, 2.0f);
+            case States.Wander:
+                WanderAround();
+                break;
+                
+            case States.Wait:
+                Wait();
+                break;
 
-            _timer = 0;
+            case States.Attack:
+                Attack();
+                break;
         }
     }
 
@@ -47,43 +58,65 @@ public class FlyRobot : MonoBehaviour, IDamagable
         _timer += Time.deltaTime;
         if (_timer >= _wanderTimer) 
         {
-            Vector3 newDir = RandomNavSphere(transform.position, _wanderRadius);
-            //transform.position = Vector3.Lerp(transform.position, transform.position + newDir, Time.deltaTime * 20);
-            //_rb.MovePosition(transform.position + newDir);
-            transform.forward = newDir.normalized;
-            _rb.DOMove(newDir, 5.0f);
             _timer = 0;
+
+            Vector3 newDir = RandomNavSphere(transform.position, _wanderRadius, _floorMask);
+            transform.forward = newDir.normalized;
+            
+            _agent.destination = newDir;
         }
     }
 
-    public static Vector3 RandomNavSphere(Vector3 origin, float dist) 
+    private void Wait()
     {
-        Vector3 randDirection = UnityEngine.Random.insideUnitSphere * dist;
-        randDirection += origin;
-        
-        return randDirection;
+        _timer += Time.deltaTime;
+
+        if (_timer >= 2) 
+        {
+            _timer = 0;
+            SetState(States.Attack);
+        }
     }
 
-    public static float GetAngle(Vector3 origin, Vector3 target)
+    private void Attack()
     {
-        Vector3 direction = target - origin;
-        return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        _agent.destination = _player.position;
+    }
+
+    private void Search()
+    {
+        _agent.destination = new Vector3(0,0,0);
     }
 
     private void OnTriggerEnter(Collider other) 
     {
         if (!other.CompareTag("Player")) return;
-        _isAttacking = true;
+        SetState(States.Wait);
     }
 
     private void OnTriggerExit(Collider other) 
     {
         if (!other.CompareTag("Player")) return;
-        _isAttacking = false;    
+        SetState(States.Wander);
     }
 
     public void Damage(Vector3 dir)
     {
         _rb.AddForce(dir * 5, ForceMode.Impulse);
+    }
+
+    public void SetState(States state)
+    {
+        _currentState = state;
+    }
+
+    public static Vector3 RandomNavSphere(Vector3 origin, float dist, LayerMask mask) 
+    {
+        Vector3 randDirection = Random.insideUnitSphere * dist;
+        randDirection += origin;
+
+        NavMeshHit navHit;
+        NavMesh.SamplePosition (randDirection, out navHit, dist, mask);
+        return navHit.position;
     }
 }

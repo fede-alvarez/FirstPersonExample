@@ -88,6 +88,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (_isJumpPressed)
         {
+            //print("Jump pressed");
             _isJumpPressed = false;
             _isJumping = true;
 
@@ -126,4 +127,13 @@ public class PlayerMovement : MonoBehaviour
         if (!other.CompareTag("Floor")) return;
         _isGrounded = false;
     }
+    public bool IsJumping {
+        get { return _isJumping; }
+    }
+
+    public bool IsMoving {
+        get { return _rb.velocity.magnitude > 0.01f && !_isJumping; }
+    }
+
+    public float GetXInput => _movement.x * -1;
 }
