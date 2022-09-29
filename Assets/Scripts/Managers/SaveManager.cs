@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class SaveManager : MonoBehaviour
 {
+    private void Awake() 
+    {
+        EventManager.GameSaved += SaveGame;
+        EventManager.GameLoaded += LoadGame;
+    }
 
     private SaveData CreateSaveGameObject()
     {
@@ -41,7 +46,7 @@ public class SaveManager : MonoBehaviour
     }
 
     public void LoadGame()
-    { 
+    {
         if (!File.Exists(Application.persistentDataPath + "/gamesave.save"))
         {
             Debug.LogWarning("No game file saved!");
@@ -60,5 +65,11 @@ public class SaveManager : MonoBehaviour
         GameManager.GetInstance.GetPlayerShoot.Ammo = save.ammo;
         
         Debug.Log("Game Loaded");
+    }
+
+    private void OnDestroy() 
+    {
+        EventManager.GameSaved -= SaveGame;
+        EventManager.GameLoaded -= LoadGame;
     }
 }

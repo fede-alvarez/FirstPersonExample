@@ -1871,8 +1871,8 @@ MonoBehaviour:
   onEnter:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 58528078}
-        m_TargetAssemblyTypeName: SaveManager, Assembly-CSharp
+      - m_Target: {fileID: 58528076}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
         m_MethodName: SaveGame
         m_Mode: 1
         m_Arguments:

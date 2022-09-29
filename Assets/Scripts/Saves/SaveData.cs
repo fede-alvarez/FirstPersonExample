@@ -6,6 +6,7 @@ public class SaveData
     public float playerPosX;
     public float playerPosY;
     public float playerPosZ;
+
     public int ammo = 0;
 
     public void SavePlayerPosition(Vector3 position)
