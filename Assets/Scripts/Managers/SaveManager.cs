@@ -4,13 +4,6 @@ using UnityEngine;
 
 public class SaveManager : MonoBehaviour
 {
-    private string _fullFilePath;
-    private string _fileName = "gamesave.save";
-
-    private void Start() 
-    {
-        _fullFilePath = Application.persistentDataPath + "/" + _fileName;
-    }
 
     private SaveData CreateSaveGameObject()
     {
@@ -28,7 +21,7 @@ public class SaveManager : MonoBehaviour
         SaveData save = CreateSaveGameObject();
 
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(_fullFilePath);
+        FileStream file = File.Create(Application.persistentDataPath + "/gamesave.save");
         bf.Serialize(file, save);
         file.Close();
 
@@ -49,21 +42,22 @@ public class SaveManager : MonoBehaviour
 
     public void LoadGame()
     { 
-        if (!File.Exists(_fullFilePath))
+        if (!File.Exists(Application.persistentDataPath + "/gamesave.save"))
         {
             Debug.LogWarning("No game file saved!");
             return;
         }
 
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(_fullFilePath, FileMode.Open);
+        FileStream file = File.Open(Application.persistentDataPath + "/gamesave.save", FileMode.Open);
         SaveData save = (SaveData) bf.Deserialize(file);
         file.Close();
 
+        print(save.ammo);
+        print(save.GetPlayerPosition());
+
         // Load de actual data
         GameManager.GetInstance.GetPlayerShoot.Ammo = save.ammo;
-        print(save.GetPlayerPosition());
-        //save.SavePlayerPosition(GameManager.GetInstance.GetPlayer.position);
         
         Debug.Log("Game Loaded");
     }

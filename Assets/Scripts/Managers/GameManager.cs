@@ -24,10 +24,7 @@ public class GameManager : MonoBehaviour
         
         _portalCamera.targetTexture = new RenderTexture(Screen.width, Screen.height, 24);
         _portalMaterial.mainTexture = _portalCamera.targetTexture;
-    }
 
-    public void LoadGame()
-    {
         GetComponent<SaveManager>().LoadGame();
     }
     
