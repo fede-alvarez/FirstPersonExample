@@ -63,19 +63,9 @@ public class PlayerShoot : MonoBehaviour
         if (pointingTransform == null) return;
         
         Vector3 shootDirection = (pointingTransform.position - transform.position).normalized;
-        
-        /*
-        if (pointingTransform.TryGetComponent(out Target target))
-            target.Shooted();
-
-        if (pointingTransform.TryGetComponent(out Barrel barrel))
-            barrel.Damage(Vector3.zero);
-        */
 
         if (pointingTransform.TryGetComponent(out IDamagable target))
-        {
             target.Damage(shootDirection);
-        }
     }
 
     private void SpawnParticles(RaycastHit hit)
@@ -102,5 +92,14 @@ public class PlayerShoot : MonoBehaviour
         }
 
         return null;
+    }
+
+    public int Ammo 
+    {
+        get { return _ammo; }
+        set { 
+            _ammo = value;
+            EventManager.OnPlayerShooted(_ammo);
+        }
     }
 }
