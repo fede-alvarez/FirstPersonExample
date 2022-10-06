@@ -1,75 +1,62 @@
 using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 using UnityEngine;
+using System.IO;
 
 public class SaveManager : MonoBehaviour
 {
+    private string _fileName = "/gamesave.save";
+    private SaveData _loadedData;
+
     private void Awake() 
     {
-        EventManager.GameSaved += SaveGame;
-        EventManager.GameLoaded += LoadGame;
+        EventManager.SaveGame += SaveGame;
+        EventManager.LoadGame += LoadGame;
     }
 
-    private SaveData CreateSaveGameObject()
+    private void Start() 
     {
-        SaveData save = new SaveData();
-
-        // Save the values in the class
-        save.ammo = GameManager.GetInstance.GetPlayerShoot.Ammo;
-        save.SavePlayerPosition(GameManager.GetInstance.GetPlayer.position);
-
-        return save;
+        CreateFile();    
     }
 
-    public void SaveGame()
+    public void SaveGame(SaveData data)
     {
-        SaveData save = CreateSaveGameObject();
-
+        string json = JsonUtility.ToJson(data);
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(Application.persistentDataPath + "/gamesave.save");
-        bf.Serialize(file, save);
+        FileStream file = File.Open(Application.persistentDataPath + _fileName, FileMode.Create);
+        bf.Serialize(file, json);
         file.Close();
-
-        // Reset States if needed
-
-        Debug.Log("Game Saved");
-    }
-
-    public void SaveAsJSON()
-    {
-        SaveData save = CreateSaveGameObject();
-        string json = JsonUtility.ToJson(save);
-
-        Debug.Log("Saving as JSON: " + json);
-        
-        //SaveData save = JsonUtility.FromJson<SaveData>(json);
     }
 
     public void LoadGame()
     {
-        if (!File.Exists(Application.persistentDataPath + "/gamesave.save"))
-        {
-            Debug.LogWarning("No game file saved!");
-            return;
-        }
-
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(Application.persistentDataPath + "/gamesave.save", FileMode.Open);
-        SaveData save = (SaveData) bf.Deserialize(file);
+
+        FileStream file = File.Open(Application.persistentDataPath + _fileName, FileMode.Open);
+        string save = (string)bf.Deserialize(file);
         file.Close();
 
-        print(save.ammo);
-        print(save.GetPlayerPosition());
+        _loadedData = JsonUtility.FromJson<SaveData>(save);
+        EventManager.OnGameLoaded(_loadedData);
+    }
 
-        // Load de actual data
-        GameManager.GetInstance.GetPlayerShoot.Ammo = save.ammo;
-        
-        Debug.Log("Game Loaded");
+    private void CreateFile()
+    {
+        if (!File.Exists(Application.persistentDataPath + _fileName))
+        {
+            FileStream file = File.Create(Application.persistentDataPath + _fileName);
+            file.Close();
+            return;
+        }
+    }
+
+    private SaveData GetLoadedData()
+    {
+        return _loadedData;
     }
 
     private void OnDestroy() 
     {
-        EventManager.GameSaved -= SaveGame;
-        EventManager.GameLoaded -= LoadGame;
+        EventManager.SaveGame -= SaveGame;
+        EventManager.LoadGame -= LoadGame;
     }
 }

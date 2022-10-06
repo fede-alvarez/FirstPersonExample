@@ -1,23 +1,22 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class SaveData
 {
-    public float playerPosX;
-    public float playerPosY;
-    public float playerPosZ;
+    public Vector3 PlayerPosition;
+    public List<Vector3> Points;
+    public int Ammo = 0;
 
-    public int ammo = 0;
-
-    public void SavePlayerPosition(Vector3 position)
+    public SaveData(Vector3 pos, List<Vector3> points, int ammo)
     {
-        playerPosX = position.x;
-        playerPosY = position.y;
-        playerPosZ = position.z;
+        PlayerPosition = pos;
+        Points = points;
+        Ammo = ammo;
     }
 
-    public Vector3 GetPlayerPosition()
+    public override string ToString()
     {
-        return new Vector3(playerPosX, playerPosY, playerPosZ);
+        return "Player Ammo: " + Ammo.ToString();
     }
 }

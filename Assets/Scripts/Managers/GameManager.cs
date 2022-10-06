@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+
 
 public class GameManager : MonoBehaviour
 {
@@ -25,18 +27,30 @@ public class GameManager : MonoBehaviour
         _portalCamera.targetTexture = new RenderTexture(Screen.width, Screen.height, 24);
         _portalMaterial.mainTexture = _portalCamera.targetTexture;
 
+        EventManager.GameLoaded += OnGameLoaded;
+        EventManager.OnLoadGame();
+    }
+
+    private void OnGameLoaded(SaveData data)
+    {
         print("Game Loaded");
-        EventManager.LoadGame();
+        print(data.ToString());
+        _player.GetComponent<PlayerShoot>().Ammo = data.Ammo;
     }
 
     public void SaveGame()
     {
         print("Game Saved!");
-        EventManager.SaveGame();
+        Vector3 pos = Vector3.zero;
+        List<Vector3> list = new List<Vector3>() {pos, pos, pos};
+        
+        EventManager.OnSaveGame(new SaveData(pos, list, 14));
     }
     
     private void OnDestroy()
     {
+        EventManager.GameLoaded -= OnGameLoaded;
+
         if (instance != null)
             instance = null;
     }
